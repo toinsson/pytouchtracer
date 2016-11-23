@@ -114,11 +114,10 @@ class Touchtracer(FloatLayout):
                               pointsize=pointsize, group=g))
 
         if points:
-            print 'touch move'
-
             data = ",".join([str(i) for i in [touch.sx, touch.sy]])
             self.pub.send_topic("touch", "move")
             self.pub.send_topic("data", data)
+            print 'touch move ', data
 
             try:
                 lp = ud['lines'][-1].add_point
