@@ -52,6 +52,10 @@ class Touchtracer(FloatLayout):
         super(Touchtracer, self).__init__(**kwargs)
         self.pub = pub
 
+    def on_motion(self, e):
+        print 'on_motion ', e
+
+
     def on_touch_down(self, touch):
         print 'touch down'
 
@@ -160,6 +164,18 @@ from kivy.core.window import Window
 
 import clientserver as cs
 
+def print_mouse_pos(e,f):
+    print e.height, f
+
+def print_enter(*args):
+    print 'enter ', args
+def print_leave(*args):
+    print 'leave ', args
+
+
+def print_prop(*args):
+    print args
+
 class TouchtracerApp(App):
     title = 'Touchtracer'
     icon = 'icon.png'
@@ -167,8 +183,16 @@ class TouchtracerApp(App):
     def build(self):
 
         self.pub = cs.SimplePublisher(port = "5556")
-
         tc = Touchtracer(pub = self.pub)
+
+        # watch over the mouse_pos
+        Window.bind(mouse_pos=print_mouse_pos)
+
+        # Window.bind(focus=print_prop)
+
+        Window.bind(on_cursor_enter=print_enter)
+        Window.bind(on_cursor_leave=print_leave)
+
         return tc
 
     def on_pause(self):
