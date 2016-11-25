@@ -104,7 +104,7 @@ class Touchtracer(FloatLayout):
             except:
                 index -= 1
 
-        points = calculate_points(oldx, oldy, touch.x, touch.y)
+        points = calculate_points(oldx, oldy, touch.x, touch.y, steps=5)
 
         # if pressure changed create a new point instruction
         if 'pressure' in ud:
@@ -164,13 +164,6 @@ from kivy.core.window import Window
 
 import clientserver as cs
 
-def print_mouse_pos(e,f):
-    print e.height, f
-
-def print_enter(*args):
-    print 'enter ', args
-def print_leave(*args):
-    print 'leave ', args
 
 
 def print_prop(*args):
@@ -185,11 +178,25 @@ class TouchtracerApp(App):
         self.pub = cs.SimplePublisher(port = "5556")
         tc = Touchtracer(pub = self.pub)
 
+        # callbacks for the window
+        def print_enter(*args):
+            self.pub.send_topic("hover", "enter")
+            self.pub.send_topic("data", "0,0")
+            print 'enter ', args
+        def print_mouse_pos(e,f):
+            self.pub.send_topic("hover", "move")
+            # self.pub.send_topic("data", ",".join([str(i) for i in f]))
+            data = str(f[0]/e.width) +","+ str(f[1]/e.height)
+            self.pub.send_topic("data", data)
+            print data
+        def print_leave(*args):
+            self.pub.send_topic("hover", "exit")
+            self.pub.send_topic("data", "0,0")
+            print 'leave ', args
+
         # watch over the mouse_pos
         Window.bind(mouse_pos=print_mouse_pos)
-
         # Window.bind(focus=print_prop)
-
         Window.bind(on_cursor_enter=print_enter)
         Window.bind(on_cursor_leave=print_leave)
 
